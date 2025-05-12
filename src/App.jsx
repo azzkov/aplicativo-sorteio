@@ -21,6 +21,11 @@ import {
   CssBaseline,
   Pagination,
   Grid,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -49,6 +54,8 @@ function NamesInput({ value, onChange }) {
   const [names, setNames] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [newName, setNewName] = useState('');
+  const [bulkNamesOpen, setBulkNamesOpen] = useState(false);
+  const [bulkNames, setBulkNames] = useState('');
   const namesPerPage = 15;
 
   // Inicializar a lista de nomes a partir do valor inicial
@@ -110,10 +117,42 @@ function NamesInput({ value, onChange }) {
     }
   };
 
+  const handleBulkNamesOpen = () => {
+    setBulkNamesOpen(true);
+  };
+
+  const handleBulkNamesClose = () => {
+    setBulkNamesOpen(false);
+    setBulkNames('');
+  };
+
+  const handleBulkNamesAdd = () => {
+    if (bulkNames.trim() !== '') {
+      const newNames = bulkNames
+        .split('\n')
+        .map((name) => name.trim())
+        .filter((name) => name.length > 0);
+
+      if (newNames.length > 0) {
+        const updatedNames = [...names, ...newNames];
+        setNames(updatedNames);
+        
+        // Avance para a página que contém o primeiro nome adicionado
+        const newTotalPages = Math.ceil(updatedNames.length / namesPerPage);
+        if (newTotalPages > currentPage) {
+          setCurrentPage(newTotalPages);
+        }
+      }
+    }
+    
+    setBulkNamesOpen(false);
+    setBulkNames('');
+  };
+
   return (
     <Box sx={{ mt: 2 }}>
       <Grid container spacing={1}>
-        <Grid item xs={9}>
+        <Grid item xs={7}>
           <TextField
             label="Adicionar novo nome"
             fullWidth
@@ -122,7 +161,7 @@ function NamesInput({ value, onChange }) {
             onKeyPress={handleKeyPress}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <Button
             variant="contained"
             color="primary"
@@ -130,6 +169,16 @@ function NamesInput({ value, onChange }) {
             sx={{ height: '100%' }}
           >
             Adicionar
+          </Button>
+        </Grid>
+        <Grid item xs={3}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleBulkNamesOpen}
+            sx={{ height: '100%' }}
+          >
+            Adicionar Vários
           </Button>
         </Grid>
       </Grid>
@@ -177,6 +226,34 @@ function NamesInput({ value, onChange }) {
           )}
         </Box>
       )}
+
+      {/* Diálogo para adicionar múltiplos nomes */}
+      <Dialog open={bulkNamesOpen} onClose={handleBulkNamesClose} fullWidth maxWidth="md">
+        <DialogTitle>Adicionar Múltiplos Nomes</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Insira um nome por linha. Todos os nomes serão adicionados à lista.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            multiline
+            rows={10}
+            fullWidth
+            variant="outlined"
+            value={bulkNames}
+            onChange={(e) => setBulkNames(e.target.value)}
+            placeholder="João Silva&#10;Maria Oliveira&#10;Carlos Pereira"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleBulkNamesClose} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleBulkNamesAdd} color="primary" variant="contained">
+            Adicionar Todos
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
