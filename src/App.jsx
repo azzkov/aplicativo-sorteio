@@ -19,6 +19,8 @@ import {
   CircularProgress,
   Switch,
   CssBaseline,
+  Pagination,
+  Grid,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -40,6 +42,143 @@ function useWindowSize() {
   }, []);
 
   return windowSize;
+}
+
+// Componente para entrada de nomes com paginação
+function NamesInput({ value, onChange }) {
+  const [names, setNames] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [newName, setNewName] = useState('');
+  const namesPerPage = 15;
+
+  // Inicializar a lista de nomes a partir do valor inicial
+  useEffect(() => {
+    if (value) {
+      const initialNames = value
+        .split('\n')
+        .map((n) => n.trim())
+        .filter((n) => n.length > 0);
+      setNames(initialNames);
+    }
+  }, []);
+
+  // Calcular índices para a paginação
+  const indexOfLastName = currentPage * namesPerPage;
+  const indexOfFirstName = indexOfLastName - namesPerPage;
+  const currentNames = names.slice(indexOfFirstName, indexOfLastName);
+  const totalPages = Math.ceil(names.length / namesPerPage);
+
+  // Atualizar valor externo quando os nomes mudarem
+  useEffect(() => {
+    const namesString = names.join('\n');
+    onChange(namesString);
+  }, [names, onChange]);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  const handleAddName = () => {
+    if (newName.trim() !== '') {
+      const updatedNames = [...names, newName.trim()];
+      setNames(updatedNames);
+      setNewName('');
+      
+      // Se adicionou na última página e excedeu o número de nomes por página, avance
+      if (updatedNames.length > currentPage * namesPerPage) {
+        setCurrentPage(Math.ceil(updatedNames.length / namesPerPage));
+      }
+    }
+  };
+
+  const handleRemoveName = (index) => {
+    const nameIndex = indexOfFirstName + index;
+    const updatedNames = [...names];
+    updatedNames.splice(nameIndex, 1);
+    setNames(updatedNames);
+    
+    // Ajustar página atual se necessário
+    if (currentNames.length === 1 && currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddName();
+    }
+  };
+
+  return (
+    <Box sx={{ mt: 2 }}>
+      <Grid container spacing={1}>
+        <Grid item xs={9}>
+          <TextField
+            label="Adicionar novo nome"
+            fullWidth
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddName}
+            sx={{ height: '100%' }}
+          >
+            Adicionar
+          </Button>
+        </Grid>
+      </Grid>
+
+      <Paper variant="outlined" sx={{ mt: 2, p: 2, maxHeight: '300px', overflow: 'auto' }}>
+        {currentNames.length > 0 ? (
+          <List dense>
+            {currentNames.map((name, index) => (
+              <ListItem
+                key={index}
+                secondaryAction={
+                  <Button 
+                    size="small" 
+                    color="error" 
+                    onClick={() => handleRemoveName(index)}
+                  >
+                    Remover
+                  </Button>
+                }
+              >
+                <ListItemText primary={`${indexOfFirstName + index + 1}. ${name}`} />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography color="text.secondary" align="center">
+            Nenhum nome adicionado
+          </Typography>
+        )}
+      </Paper>
+
+      {names.length > 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+          <Typography variant="body2">
+            Total: {names.length} nomes
+          </Typography>
+          {totalPages > 1 && (
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size="small"
+            />
+          )}
+        </Box>
+      )}
+    </Box>
+  );
 }
 
 function App() {
@@ -191,15 +330,7 @@ function App() {
           </FormControl>
 
           {mode === 'names' ? (
-            <TextField
-              label="Digite os nomes (um por linha)"
-              multiline
-              minRows={4}
-              fullWidth
-              value={namesInput}
-              onChange={(e) => setNamesInput(e.target.value)}
-              margin="normal"
-            />
+            <NamesInput value={namesInput} onChange={setNamesInput} />
           ) : (
             <Box sx={{ mt: 2 }}>
               <TextField
