@@ -29,8 +29,13 @@ import {
   Divider,
   Card,
   CardContent,
+  Modal,
+  Fade,
+  Backdrop,
+  IconButton,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CloseIcon from '@mui/icons-material/Close';
 
 function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
@@ -264,6 +269,98 @@ function NamesInput({ value, onChange }) {
   );
 }
 
+// Componente para exibir os resultados do sorteio em um modal grande
+function ResultModal({ open, results, raffleName, mode, onClose, onRedraw }) {
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{ timeout: 500 }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Fade in={open}>
+        <Paper
+          sx={{
+            width: '90%',
+            maxWidth: '800px',
+            maxHeight: '90vh',
+            p: 4,
+            position: 'relative',
+            overflow: 'auto',
+          }}
+        >
+          <IconButton
+            sx={{ position: 'absolute', top: 8, right: 8 }}
+            onClick={onClose}
+            aria-label="fechar"
+          >
+            <CloseIcon />
+          </IconButton>
+
+          <Typography variant="h4" color="primary" gutterBottom align="center">
+            Resultado do Sorteio {raffleName ? `- ${raffleName}` : ''}
+          </Typography>
+
+          <Box sx={{ mt: 3, mb: 4 }}>
+            {results.map((resultSet, index) => (
+              <Box key={index} sx={{ mb: 4 }}>
+                {results.length > 1 && (
+                  <Typography variant="h6" gutterBottom sx={{ borderBottom: 1, borderColor: 'divider', pb: 1 }}>
+                    Sorteio {index + 1}
+                  </Typography>
+                )}
+
+                <List>
+                  {resultSet.map((item, idx) => (
+                    <ListItem key={idx} sx={{ 
+                      py: 1.5, 
+                      borderBottom: idx < resultSet.length - 1 ? 1 : 0, 
+                      borderColor: 'divider' 
+                    }}>
+                      <ListItemText
+                        primary={
+                          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                            {idx + 1}. {item}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            ))}
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              size="large" 
+              onClick={onRedraw}
+            >
+              Sortear Novamente
+            </Button>
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              size="large" 
+              onClick={onClose}
+            >
+              Fechar
+            </Button>
+          </Box>
+        </Paper>
+      </Fade>
+    </Modal>
+  );
+}
+
 function App() {
   const [raffleName, setRaffleName] = useState('');
   const [mode, setMode] = useState('names'); // 'names' or 'numbers'
@@ -277,6 +374,7 @@ function App() {
   const [drawing, setDrawing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
 
   const countdownRef = useRef(null);
   const { width, height } = useWindowSize();
@@ -289,6 +387,7 @@ function App() {
       setDrawing(false);
       setCountdown(null);
       setShowConfetti(true);
+      setShowResultModal(true);
       setTimeout(() => setShowConfetti(false), 5000);
       return;
     }
@@ -350,6 +449,15 @@ function App() {
     setResults(allResults);
   };
 
+  const handleRedraw = () => {
+    setShowResultModal(false);
+    setResults([]);
+    setTimeout(() => {
+      setDrawing(true);
+      setCountdown(countdownSeconds);
+    }, 300);
+  };
+
   const shuffleArray = (array) => {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -396,7 +504,7 @@ function App() {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <img src="/logo.png" alt="Company Logo" style={{ maxHeight: 60, marginRight: 16 }} />
-                  <Typography variant="h5">Sorteios CESAM</Typography>
+                  <Typography variant="h5" align='center'>Sorteios CESAM</Typography>
                 </Box>
                 <FormControlLabel
                   control={
@@ -574,7 +682,7 @@ function App() {
                     </>
                   )}
 
-                  {/* Exibição dos Resultados */}
+                  {/* Exibição dos Resultados na interface principal (versão reduzida) */}
                   {!drawing && results.length > 0 && (
                     <Box sx={{ mt: 2 }}>
                       <Divider sx={{ mb: 2 }} />
@@ -605,6 +713,17 @@ function App() {
                           </Grid>
                         ))}
                       </Grid>
+                      
+                      {/* Botão para reabrir o modal de resultados */}
+                      <Box sx={{ mt: 2, textAlign: 'center' }}>
+                        <Button 
+                          variant="outlined" 
+                          color="primary" 
+                          onClick={() => setShowResultModal(true)}
+                        >
+                          Ver Resultados em Tela Cheia
+                        </Button>
+                      </Box>
                     </Box>
                   )}
                 </CardContent>
@@ -612,6 +731,17 @@ function App() {
             </Grid>
           </Grid>
         </Paper>
+        
+        {/* Modal de Resultados */}
+        <ResultModal 
+          open={showResultModal} 
+          results={results} 
+          raffleName={raffleName}
+          mode={mode}
+          onClose={() => setShowResultModal(false)}
+          onRedraw={handleRedraw}
+        />
+        
         {showConfetti && <Confetti width={width} height={height} />}
       </Container>
     </ThemeProvider>
