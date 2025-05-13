@@ -1,4 +1,4 @@
-# APP de Sorteios (raffle-app)
+# Sorteios CESAM (raffle-app)
 
 ## Descrição do Projeto
 
@@ -6,13 +6,16 @@ Sorteios CESAM é um aplicativo web para realizar sorteios de forma simples e di
 
 ## Funcionalidades
 
-- Sorteio por nomes: insira uma lista de nomes (um por linha) para realizar o sorteio.
-- Sorteio por números: defina um intervalo de números e quantos serão sorteados.
+- Sorteio por nomes: insira uma lista de nomes (um por linha) com paginação para facilitar a visualização e gerenciamento.
+- Sorteio por números: defina um intervalo de números e quantos serão sorteados por vez.
 - Configuração do número de sorteios a serem realizados.
-- Contagem regressiva personalizável antes do sorteio começar.
-- Exibição dos resultados de cada sorteio separadamente.
+- Contagem regressiva personalizável antes do sorteio começar, com indicador visual de progresso.
+- Exibição dos resultados de cada sorteio separadamente, tanto na interface principal quanto em um modal em tela cheia.
+- Botão para refazer o sorteio (sortear novamente) no modal de resultados.
 - Animação de confete ao final do sorteio para celebrar os vencedores.
-- Suporte a modo claro e modo escuro.
+- Suporte a modo claro e modo escuro, com interruptor para alternar entre os modos.
+- Validações e alertas para entradas inválidas, como tentar sortear mais nomes do que os disponíveis.
+- Interface construída com Material UI (MUI) para componentes e estilo.
 
 ## Instalação
 
@@ -40,19 +43,19 @@ Sorteios CESAM é um aplicativo web para realizar sorteios de forma simples e di
 3. Na interface do aplicativo:
    - Insira o nome do sorteio no campo "Nome do Sorteio".
    - Escolha o modo de sorteio: "Nomes" para inserir uma lista de nomes (um por linha) ou "Números" para definir um intervalo numérico.
-   - Se escolher "Nomes", digite os nomes no campo indicado.
-   - Se escolher "Números", defina o total de números e quantos serão sorteados.
+   - Se escolher "Nomes", adicione nomes individualmente ou vários de uma vez, com paginação para facilitar a visualização.
+   - Se escolher "Números", defina o total de números e quantos serão sorteados por vez.
    - Defina o número de sorteios que deseja realizar.
    - Ajuste o tempo da contagem regressiva (em segundos) usando o controle deslizante.
-   - Clique no botão "Iniciar Sorteio" para começar.
+   - Clique no botão "Iniciar Sorteio" para começar. Durante a contagem regressiva, o botão ficará desabilitado e uma barra de progresso será exibida.
 
-4. Durante a contagem regressiva, o botão ficará desabilitado e uma barra de progresso será exibida.
+4. Após a contagem regressiva, os resultados do(s) sorteio(s) serão exibidos, listando os nomes ou números sorteados para cada sorteio na interface principal.
 
-5. Após a contagem regressiva, os resultados do(s) sorteio(s) serão exibidos, listando os nomes ou números sorteados para cada sorteio.
+5. Você pode clicar no botão "Ver Resultados em Tela Cheia" para abrir um modal com os resultados detalhados e a opção de "Sortear Novamente".
 
 6. Uma animação de confete será exibida para celebrar o sorteio.
 
-7. Você pode alternar entre o modo claro e escuro usando o interruptor no canto superior direito.
+7. Você pode alternar entre o modo claro e escuro usando o interruptor no canto superior direito, que exibe o estado atual ("Modo Claro" ou "Modo Escuro").
 
 ## Build para Produção
 
@@ -87,10 +90,9 @@ Se desejar trocar a logo exibida no aplicativo, siga os passos abaixo:
 2. Caso queira usar um nome diferente para o arquivo da logo, atualize o caminho da imagem no arquivo `src/App.jsx`. Procure pela linha que contém:
 
 ```jsx
-<img src="/logo.png" alt="Company Logo" style={{ maxHeight: 120 }} />
+<img src="/logo.png" alt="Company Logo" style={{ maxHeight: 60, marginRight: 16 }} />
 ```
 
 e altere o valor do atributo `src` para o caminho do seu novo arquivo.
 
 3. Salve as alterações e reinicie o aplicativo, se necessário, para ver a nova logo em ação.
-<img src="/logo.png" alt="Company Logo" style={{ maxHeight: 120 }} />
