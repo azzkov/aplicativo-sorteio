@@ -2,7 +2,7 @@
 
 ## Descrição do Projeto
 
-Sorteios CESAM é um aplicativo web para realizar sorteios de forma simples e divertida. Ele permite que você faça sorteios baseados em uma lista de nomes ou em uma faixa de números, com múltiplos sorteios e contagem regressiva personalizável. O aplicativo também possui modo claro e escuro para melhor experiência do usuário.
+Esse APP de Sorteios é um aplicativo web para realizar sorteios de forma simples e divertida. Ele permite que você faça sorteios baseados em uma lista de nomes ou em uma faixa de números, com múltiplos sorteios e contagem regressiva personalizável. O aplicativo também possui modo claro e escuro para melhor experiência do usuário.
 
 ## Funcionalidades
 
